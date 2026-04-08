@@ -1,0 +1,32 @@
+{
+  "name": "huozige-web-app-cli",
+  "version": "1.0.0",
+  "description": "TypeScript rewrite of Forguncy MQTT command CLI.",
+  "license": "MIT",
+  "bin": {
+    "fgc-web": "dist/cli.js",
+    "huozige-web-app-cli": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "config.example.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mqtt": "5.14.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.5.2",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}
