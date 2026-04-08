@@ -13,9 +13,10 @@ const node_path_1 = require("node:path");
 const mqtt_client_1 = require("../client/mqtt-client");
 const config_1 = require("../config/config");
 exports.allowedBindingEndpoints = [
+    "TableBinding",
     "GetTableDataWithOffset",
-    "GetComboBindingOptions",
-    "CalcBindingDataSource"
+    "CandidatesBinding",
+    "GetComboBindingOptions"
 ];
 const defaultIO = {
     stdout: (message) => process.stdout.write(message),
@@ -123,7 +124,7 @@ function parseBindingArgs(args) {
     const jsonBody = args[3];
     const commandName = normalizeBindingCommandName(rawCommandName);
     if (!commandName) {
-        throw new Error(`unsupported binding commandName: ${rawCommandName} (allowed: ${exports.allowedBindingEndpoints.join(", ")})`);
+        throw new Error(`unsupported binding commandName: ${rawCommandName})`);
     }
     if (!method) {
         throw new Error("method is required");
@@ -146,8 +147,6 @@ function normalizeBindingCommandName(commandName) {
         case "tablebindings":
         case "gettabledatawithoffset":
             return "GetTableDataWithOffset";
-        case "calcbindingdatasource":
-            return "CalcBindingDataSource";
         default:
             return undefined;
     }
@@ -183,7 +182,7 @@ async function sendCommand(config, command, userName, sessionId, agentName, para
     if (!config.mqttBroker) {
         throw new Error("mqttBroker not configured in local config file");
     }
-    const mqttClient = new mqtt_client_1.MQTTClient(config.mqttBroker, "forguncy-cli", config.username ?? "", config.password ?? "");
+    const mqttClient = new mqtt_client_1.MQTTClient(config.mqttBroker, "huozige-web-app-cli", config.username ?? "", config.password ?? "");
     mqttClient.setTopics(config.requestTopic ?? "", config.responseTopic ?? "");
     try {
         await mqttClient.connect();
@@ -332,10 +331,10 @@ function requireFlagValue(flagName, value) {
 }
 function renderRootHelp() {
     return [
-        "Forguncy CLI tool",
+        "Huozige Web App CLI tool",
         "",
         "Usage:",
-        "  fgc-web [command]",
+        "  huozige-web-app-cli [command]",
         "",
         "Available Commands:",
         "  servercommand Execute business server command",
@@ -345,7 +344,7 @@ function renderRootHelp() {
         "",
         "Flags:",
         '  -c, --config string   Path to local JSON config file (default "config.json")',
-        "  -h, --help            help for fgc-web",
+        "  -h, --help            help for huozige-web-app-cli",
         ""
     ].join("\n");
 }
@@ -354,7 +353,7 @@ function renderServerCommandHelp() {
         "Execute business server command",
         "",
         "Usage:",
-        "  fgc-web servercommand [applicationName] [commandName] [method] [jsonBody] -u [userName] -s [sessionId] -a [agentName]",
+        "  huozige-web-app-cli servercommand [applicationName] [commandName] [method] [jsonBody] -u [userName] -s [sessionId] -a [agentName]",
         "",
         "Flags:",
         "  -u, --userName string    Username for authentication",
@@ -368,7 +367,7 @@ function renderBindingCommandHelp() {
         "Execute system binding endpoint",
         "",
         "Usage:",
-        "  fgc-web binding [applicationName] [commandName] [method] [jsonBody] -u [userName] -s [sessionId] -a [agentName]",
+        "  huozige-web-app-cli binding [applicationName] [commandName] [method] [jsonBody] -u [userName] -s [sessionId] -a [agentName]",
         "",
         "Flags:",
         "  -u, --userName string    Username for authentication",
@@ -382,7 +381,7 @@ function renderStatusHelp() {
         "Show configuration status",
         "",
         "Usage:",
-        "  fgc-web status",
+        "  huozige-web-app-cli status",
         ""
     ].join("\n");
 }

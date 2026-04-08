@@ -1,6 +1,6 @@
 import { type Config } from "../config/config";
 import type { CommandParameters } from "../protocol/messages";
-export declare const allowedBindingEndpoints: readonly ["GetTableDataWithOffset", "GetComboBindingOptions", "CalcBindingDataSource"];
+export declare const allowedBindingEndpoints: readonly ["TableBinding", "GetTableDataWithOffset", "CandidatesBinding", "GetComboBindingOptions"];
 export interface CliIO {
     stdout(message: string): void;
     stderr(message: string): void;
