@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  allowedBindingEndpoints,
   parseJSONBody,
   parseJSONStringMap,
   parseBindingArgs
@@ -9,11 +8,11 @@ import {
 
 describe("parseBindingArgs", () => {
   it("accepts canonical binding command names", () => {
-    const result = parseBindingArgs(["OASystem", "CalcBindingDataSource", "post", '{"a":1}']);
+    const result = parseBindingArgs(["OASystem", "GetTableDataWithOffset", "post", '{"a":1}']);
 
     expect(result).toEqual({
       applicationName: "OASystem",
-      commandName: "CalcBindingDataSource",
+      commandName: "GetTableDataWithOffset",
       method: "POST",
       jsonBody: '{"a":1}'
     });
@@ -55,7 +54,7 @@ describe("parseBindingArgs", () => {
 
   it("rejects unsupported binding command", () => {
     expect(() => parseBindingArgs(["OASystem", "UnknownBinding", "POST", '{"a":1}'])).toThrow(
-      `unsupported binding commandName: UnknownBinding (allowed: ${allowedBindingEndpoints.join(", ")})`
+      "unsupported binding commandName: UnknownBinding)"
     );
   });
 });

@@ -1,7 +1,5 @@
-import { resolve } from "node:path";
-
 import { MQTTClient } from "../client/mqtt-client";
-import { defaultConfigPath, loadConfig, type Config } from "../config/config";
+import { loadConfig, type Config } from "../config/config";
 import type { CommandParameters, Response } from "../protocol/messages";
 
 export const allowedBindingEndpoints = [
@@ -23,7 +21,7 @@ const defaultIO: CliIO = {
 
 export async function runCli(argv: string[], io: CliIO = defaultIO): Promise<number> {
   try {
-    const { configPath, restArgs, showHelp } = parseGlobalFlags(argv);
+    const { restArgs, showHelp } = parseGlobalFlags(argv);
 
     if (showHelp || restArgs.length === 0) {
       io.stdout(renderRootHelp());
@@ -43,14 +41,14 @@ export async function runCli(argv: string[], io: CliIO = defaultIO): Promise<num
           return 0;
         }
 
-        return executeServerCommandFromCli(configPath, commandArgs, io);
+        return executeServerCommandFromCli(commandArgs, io);
       case "binding":
         if (commandArgs.includes("--help") || commandArgs.includes("-h")) {
           io.stdout(renderBindingCommandHelp());
           return 0;
         }
 
-        return executeBindingCommandFromCli(configPath, commandArgs, io);
+        return executeBindingCommandFromCli(commandArgs, io);
       case "status":
         if (commandArgs.includes("--help") || commandArgs.includes("-h")) {
           io.stdout(renderStatusHelp());
@@ -61,7 +59,7 @@ export async function runCli(argv: string[], io: CliIO = defaultIO): Promise<num
           throw new Error(`accepts 0 arg(s), received ${commandArgs.length}`);
         }
 
-        return executeStatusFromCli(configPath, io);
+        return executeStatusFromCli(io);
       default:
         throw new Error(`unknown command "${commandName}" for "fgc-web"`);
     }
@@ -243,7 +241,7 @@ export async function sendCommand(
   io: CliIO = defaultIO
 ): Promise<void> {
   if (!config.mqttBroker) {
-    throw new Error("mqttBroker not configured in local config file");
+    throw new Error("HZG_CLI_MQTT_BROKER environment variable is required");
   }
 
   const mqttClient = new MQTTClient(
@@ -284,9 +282,8 @@ export async function sendCommand(
   }
 }
 
-export function executeStatus(config: Config, configPath: string, io: CliIO = defaultIO): void {
+export function executeStatus(config: Config, io: CliIO = defaultIO): void {
   io.stdout("Configuration Status\n");
-  io.stdout(`Config File: ${resolve(configPath)}\n`);
 
   if (config.mqttBroker) {
     io.stdout(`MQTT Broker: ${config.mqttBroker}\n`);
@@ -296,6 +293,14 @@ export function executeStatus(config: Config, configPath: string, io: CliIO = de
 
   if (config.username) {
     io.stdout(`Username: ${config.username}\n`);
+  }
+
+  if (config.requestTopic) {
+    io.stdout(`Request Topic: ${config.requestTopic}\n`);
+  }
+
+  if (config.responseTopic) {
+    io.stdout(`Response Topic: ${config.responseTopic}\n`);
   }
 
   if (config.timeout && config.timeout > 0) {
@@ -308,45 +313,34 @@ export function executeStatus(config: Config, configPath: string, io: CliIO = de
   io.stdout(`  binding allowed endpoints: ${allowedBindingEndpoints.join(", ")}\n`);
 }
 
-async function executeServerCommandFromCli(configPath: string, commandArgs: string[], io: CliIO): Promise<number> {
+async function executeServerCommandFromCli(commandArgs: string[], io: CliIO): Promise<number> {
   const { positionalArgs, flags } = parseUserFlags(commandArgs);
   assertRequiredUserFlags(flags);
-  const config = await loadConfig(configPath);
+  const config = loadConfig();
   await executeServerCommand(config, positionalArgs, flags.userName, flags.sessionId, flags.agentName, io);
   return 0;
 }
 
-async function executeBindingCommandFromCli(configPath: string, commandArgs: string[], io: CliIO): Promise<number> {
+async function executeBindingCommandFromCli(commandArgs: string[], io: CliIO): Promise<number> {
   const { positionalArgs, flags } = parseUserFlags(commandArgs);
   assertRequiredUserFlags(flags);
-  const config = await loadConfig(configPath);
+  const config = loadConfig();
   await executeBindingCommand(config, positionalArgs, flags.userName, flags.sessionId, flags.agentName, io);
   return 0;
 }
 
-async function executeStatusFromCli(configPath: string, io: CliIO): Promise<number> {
-  const config = await loadConfig(configPath);
-  executeStatus(config, configPath, io);
+async function executeStatusFromCli(io: CliIO): Promise<number> {
+  const config = loadConfig();
+  executeStatus(config, io);
   return 0;
 }
 
-function parseGlobalFlags(argv: string[]): { configPath: string; restArgs: string[]; showHelp: boolean } {
-  let configPath = defaultConfigPath();
+function parseGlobalFlags(argv: string[]): { restArgs: string[]; showHelp: boolean } {
   let showHelp = false;
   const restArgs: string[] = [];
 
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
-    if (token === "-c" || token === "--config") {
-      const value = argv[index + 1];
-      if (!value) {
-        throw new Error(`flag needs an argument: ${token}`);
-      }
-
-      configPath = value;
-      index += 1;
-      continue;
-    }
 
     if (token === "-h" || token === "--help") {
       showHelp = true;
@@ -357,7 +351,6 @@ function parseGlobalFlags(argv: string[]): { configPath: string; restArgs: strin
   }
 
   return {
-    configPath,
     restArgs,
     showHelp
   };
@@ -453,7 +446,6 @@ function renderRootHelp(): string {
     "  help          Help about any command",
     "",
     "Flags:",
-    '  -c, --config string   Path to local JSON config file (default "config.json")',
     "  -h, --help            help for huozige-web-app-cli",
     ""
   ].join("\n");

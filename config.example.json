@@ -1,8 +1,0 @@
-{
-  "mqttBroker": "tcp://localhost:1883",
-  "username": "your-username",
-  "password": "your-password",
-  "requestTopic": "openclaw/req",
-  "responseTopic": "openclaw/res",
-  "timeout": 200
-}

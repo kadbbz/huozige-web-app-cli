@@ -1,6 +1,6 @@
 {
   "name": "huozige-web-app-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TypeScript rewrite of Forguncy MQTT command CLI.",
   "license": "MIT",
   "bin": {
@@ -11,8 +11,7 @@
   "types": "dist/src/index.d.ts",
   "files": [
     "dist",
-    "README.md",
-    "config.example.json"
+    "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
