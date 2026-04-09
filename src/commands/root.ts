@@ -246,7 +246,7 @@ export async function sendCommand(
 
   const mqttClient = new MQTTClient(
     config.mqttBroker,
-    "huozige-web-app-cli",
+    "",
     config.username ?? "",
     config.password ?? ""
   );
