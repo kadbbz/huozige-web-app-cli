@@ -2,8 +2,6 @@ export interface Config {
   mqttBroker?: string;
   username?: string;
   password?: string;
-  authServer?: string;
-  commandServer?: string;
   requestTopic?: string;
   responseTopic?: string;
   timeout?: number;
@@ -15,8 +13,6 @@ const ENV_KEY_MAP: Record<keyof Config, string> = {
   mqttBroker: "MQTT_BROKER",
   username: "USERNAME",
   password: "PASSWORD",
-  authServer: "AUTH_SERVER",
-  commandServer: "COMMAND_SERVER",
   requestTopic: "REQUEST_TOPIC",
   responseTopic: "RESPONSE_TOPIC",
   timeout: "TIMEOUT",
@@ -42,16 +38,6 @@ export function loadConfig(): Config {
   const envPassword = process.env[toEnvKey("password")];
   if (envPassword !== undefined) {
     config.password = envPassword;
-  }
-
-  const envAuthServer = process.env[toEnvKey("authServer")];
-  if (envAuthServer !== undefined) {
-    config.authServer = envAuthServer;
-  }
-
-  const envCommandServer = process.env[toEnvKey("commandServer")];
-  if (envCommandServer !== undefined) {
-    config.commandServer = envCommandServer;
   }
 
   const envRequestTopic = process.env[toEnvKey("requestTopic")];
