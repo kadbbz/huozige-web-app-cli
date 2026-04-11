@@ -6,7 +6,10 @@ export const allowedBindingEndpoints = [
   "TableBinding",
   "GetTableDataWithOffset",
   "CandidatesBinding",
-  "GetComboBindingOptions"
+  "GetComboBindingOptions",
+  "CalcBindingDataSource",
+  "GetMetadata",
+  "GetMetadata2"
 ] as const;
 
 export interface CliIO {
@@ -196,6 +199,12 @@ function normalizeBindingCommandName(commandName: string): string | undefined {
     case "tablebindings":
     case "gettabledatawithoffset":
       return "GetTableDataWithOffset";
+    case "calcbindingdatasource":
+      return "CalcBindingDataSource";
+    case "getmetadata":
+      return "GetMetadata";
+    case "getmetadata2":
+      return "GetMetadata2";
     default:
       return undefined;
   }
